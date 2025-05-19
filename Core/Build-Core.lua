@@ -9,7 +9,23 @@ project "Core"
 
    includedirs
    {
-      "Source"
+      "Source",
+      "%{prj.location}/Vendor/libtorch/%{cfg.buildcfg}/include",
+      "%{prj.location}/Vendor/libtorch/%{cfg.buildcfg}/include/torch/csrc/api/include"
+   }
+
+   libdirs {
+       "%{prj.location}/vendor/libtorch/%{cfg.buildcfg}/lib"
+   }
+
+    links {
+        "torch",
+        "c10",
+        "torch_cpu"
+    }
+
+   postbuildcommands {
+        "{COPY} \"%{prj.location}/vendor/libtorch/%{cfg.buildcfg}/lib/*.dll\" \"%{cfg.targetdir}/../App\""
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")

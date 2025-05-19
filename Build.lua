@@ -1,7 +1,7 @@
 -- premake5.lua
-workspace "New Project"
+workspace "AIChess"
    architecture "x64"
-   configurations { "Debug", "Release", "Dist" }
+   configurations { "Debug", "Release"}
    startproject "App"
 
    -- Workspace-wide build options for MSVC

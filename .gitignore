@@ -1,6 +1,7 @@
 # Directories
 .vs/
 Binaries/
+Core/Vendor/libtorch/**
 
 # Files
 *.vcxproj
