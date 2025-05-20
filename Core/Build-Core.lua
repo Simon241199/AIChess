@@ -1,14 +1,13 @@
 project "Core"
    kind "StaticLib"
    language "C++"
-   cppdialect "C++20"
+   cppdialect "C++23"
    targetdir "Binaries/%{cfg.buildcfg}"
    staticruntime "off"
 
    files { "Source/**.h", "Source/**.cpp" }
 
-   includedirs
-   {
+   includedirs {
       "Source",
       "%{prj.location}/Vendor/libtorch/%{cfg.buildcfg}/include",
       "%{prj.location}/Vendor/libtorch/%{cfg.buildcfg}/include/torch/csrc/api/include"
@@ -18,14 +17,20 @@ project "Core"
        "%{prj.location}/vendor/libtorch/%{cfg.buildcfg}/lib"
    }
 
-    links {
-        "torch",
-        "c10",
-        "torch_cpu"
-    }
+   links {
+       "torch",
+       "c10",
+       "torch_cpu"
+   }
 
    postbuildcommands {
-        "{COPY} \"%{prj.location}/vendor/libtorch/%{cfg.buildcfg}/lib/*.dll\" \"%{cfg.targetdir}/../App\""
+        '{COPY} "%{prj.location}vendor/libtorch/%{cfg.buildcfg}/lib/c10.dll" "%{cfg.targetdir}/../App"',
+        '{COPY} "%{prj.location}vendor/libtorch/%{cfg.buildcfg}/lib/fbgemm.dll" "%{cfg.targetdir}/../App"',
+        '{COPY} "%{prj.location}vendor/libtorch/%{cfg.buildcfg}/lib/torch.dll" "%{cfg.targetdir}/../App"',
+        '{COPY} "%{prj.location}vendor/libtorch/%{cfg.buildcfg}/lib/uv.dll" "%{cfg.targetdir}/../App"',
+        '{COPY} "%{prj.location}vendor/libtorch/%{cfg.buildcfg}/lib/asmjit.dll" "%{cfg.targetdir}/../App"',
+        '{COPY} "%{prj.location}vendor/libtorch/%{cfg.buildcfg}/lib/cupti64_2022.3.0.dll" "%{cfg.targetdir}/../App"',
+        '{COPY} "%{prj.location}vendor/libtorch/%{cfg.buildcfg}/lib/torch_cpu.dll" "%{cfg.targetdir}/../App"',
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")

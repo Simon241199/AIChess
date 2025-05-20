@@ -1,6 +1,19 @@
-#include "Core/Core.h"
+﻿#ifdef _WIN32
+#include <windows.h>
+#endif
 
-int main()
-{
-	Core::PrintHelloWorld();
+#include "Core/Board.h"
+#include "CommandLineUI.h"
+#include <iostream>
+#include <Core/Position.h>
+
+
+int main() {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);  // Konsole auf UTF-8 Codepage umstellen
+#endif
+    Core::Board b;
+    Display(b);
+
+    return 0;
 }
