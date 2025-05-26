@@ -4,12 +4,38 @@
 
 #include "Core/Board.h"
 #include "CommandLineUI.h"
-#include <iostream>
-#include <thread>
-#include <chrono>
+#include "Player.h"
+
 #include <Core/Position.h>
 #include <Core/MoveGenLookUp.h>
 #include <Core/Utility.h>
+#include <Core/Actor.h>
+#include <Core/ComActors/SymbolicCom.h>
+
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <unordered_map>
+
+void gameLoop() {
+	Core::Board b;
+
+	std::unordered_map<Core::PieceColor, std::unique_ptr<Core::Actor>> actors;
+	auto matchUp = getMatchUp();
+	actors[Core::PieceColor::White] = std::move(matchUp.first);
+	actors[Core::PieceColor::Black] = std::move(matchUp.second);
+
+	while (true)
+	{
+		display(b);
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		if (b.getMoves().size() == 0 && b.isInCheck(b.getWhoseTurn())) {
+			return;
+		}
+		Core::Move move = actors[b.getWhoseTurn()]->getMove(b);
+		b.make(move);
+	}
+}
 
 int main() {
 #ifdef _WIN32
@@ -18,15 +44,8 @@ int main() {
 
 	askCompatibility();
 
-	Core::Board b;
-
-	while (true)
-	{
-		Display(b);
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-		Core::Move randomMove = Core::getRandomMove(b);
-		b.make(randomMove);
+	while (true) {
+		gameLoop();
 	}
 
 	return 0;

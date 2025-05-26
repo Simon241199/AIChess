@@ -13,3 +13,4 @@ Makefile
 
 # Exclude
 !Vendor/Binaries
+Core/Source/Core/ComActors/resources/chess_games.csv

@@ -208,6 +208,24 @@ namespace Core {
 	}
 
 	std::string Move::toString() const {
-		return this->getFrom().toString() + this->getTo().toString();
+		if (!this->isPromotion()) {
+			return this->getFrom().toString() + this->getTo().toString();
+		}
+		std::string promotionPiece = "";
+		switch (this->getPromotionPiece()) {
+		case PieceType::Queen:
+			promotionPiece = "q";
+			break;
+		case PieceType::Rook:
+			promotionPiece = "r";
+			break;
+		case PieceType::Bishop:
+			promotionPiece = "b";
+			break;
+		case PieceType::Knight:
+			promotionPiece = "n";
+			break;
+		}
+		return this->getFrom().toString() + this->getTo().toString() + promotionPiece;
 	}
 };

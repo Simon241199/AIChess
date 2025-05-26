@@ -9,4 +9,4 @@ namespace Core {
 	Move getRandomMove(const Board& b);
 
 	void logBitboard(uint64_t bitboard);
-}
+};

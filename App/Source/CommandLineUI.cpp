@@ -1,5 +1,10 @@
 ﻿#include "CommandLineUI.h"
 #include <iostream>
+#include <vector>
+#include <Core/ComActors/PureAI.h>
+#include <Core/ComActors/SymbolicCom.h>
+#include <Core/ComActors/HybridCom.h>
+#include <Player.h>
 
 static bool compatibility = true;
 
@@ -66,7 +71,7 @@ std::string toAscii(Core::Piece p) {
 }
 
 // print using ANSI escape code
-void DisplayColored(const Core::Board& b)
+void displayColored(const Core::Board& b)
 {
 	std::cout << std::endl;
 	std::cout << "\033[2J\033[H"; // erase screen and reset cursor position
@@ -91,7 +96,7 @@ void DisplayColored(const Core::Board& b)
 	}
 }
 
-void DisplayCompatibility(const Core::Board& b)
+void displayCompatibility(const Core::Board& b)
 {
 	std::cout << std::endl;
 	std::cout << "+---+---+---+---+---+---+---+---+" << std::endl;
@@ -108,9 +113,9 @@ void DisplayCompatibility(const Core::Board& b)
 
 void askCompatibility()
 {
-	DisplayColored(Core::Board());
+	displayColored(Core::Board());
 	std::cout << std::endl;
-	std::cout << "If the above chessboard is displayed correctly, you can remain in colour mode by entering \"y\" otherwise enter \"n\" to activate compatibility mode."<<std::endl;
+	std::cout << "If the above chessboard is displayed correctly, you can remain in colour mode by entering \"y\" otherwise enter \"n\" to activate compatibility mode." << std::endl;
 	std::cout << "Is the chessboard displayed correctly? [y/n]: ";
 	std::string str;
 	std::cin >> str;
@@ -122,12 +127,75 @@ void askCompatibility()
 	}
 }
 
-void Display(const Core::Board& b)
+std::unique_ptr<Core::Actor> getActor()
+{
+	do {
+		std::cout << "Your answer [p/s/h/u]: ";
+		std::string str;
+		std::cin >> str;
+		if (str.length() == 1) {
+			switch (str[0]) {
+			case 'p':
+				return std::make_unique<Core::PureAI>();
+			case 's':
+				return std::make_unique<Core::SymbolicCom>();
+			case 'h':
+				return std::make_unique<Core::HybridCom>();
+			case 'u':
+				return std::make_unique<Player>();
+			}
+		}
+		std::cout << "Invalid input!" << std::endl;
+	} while (true);
+}
+
+std::pair<std::unique_ptr<Core::Actor>, std::unique_ptr<Core::Actor>> getMatchUp()
+{
+	std::cout << std::endl;
+	std::cout << "Should white be a PureAI, a SymbolicCom, a HybridCom or a user-controlled player?" << std::endl;
+	std::unique_ptr<Core::Actor> whiteActor = getActor();
+
+	std::cout << std::endl;
+	std::cout << "Should black be a PureAI, a SymbolicCom or a HybridCom?" << std::endl;
+	std::unique_ptr<Core::Actor> blackActor = getActor();
+
+	return std::pair<std::unique_ptr<Core::Actor>, std::unique_ptr<Core::Actor>>(std::move(whiteActor), std::move(blackActor));
+}
+
+void display(const Core::Board& b)
 {
 	if (compatibility) {
-		DisplayCompatibility(b);
+		displayCompatibility(b);
 	}
 	else {
-		DisplayColored(b);
+		displayColored(b);
 	}
+}
+
+Core::Move getUserMove(const Core::Board& b)
+{
+	std::cout << "Enter one of these possible moves: ";
+	std::vector<Core::Move> moves = b.getMoves();
+	std::vector<std::string> movesStrings;
+	for (int i = 0; i < moves.size() - 1; i++) {
+		std::cout << moves[i].toString() << ", ";
+		movesStrings.push_back(moves[i].toString());
+	}
+	std::cout << moves[moves.size() - 1].toString() << std::endl;
+	movesStrings.push_back(moves[moves.size() - 1].toString());
+
+	int i;
+	do {
+		std::string input;
+		std::cout << "Your move: ";
+		std::cin >> input;
+		auto it = std::find(movesStrings.begin(), movesStrings.end(), input);
+		if (it != movesStrings.end()) {
+			i = it - movesStrings.begin();
+			break;
+		}
+		std::cout << "Invalid move!" << std::endl;
+	} while (true);
+
+	return moves[i];
 }

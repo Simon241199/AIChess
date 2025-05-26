@@ -19,6 +19,7 @@ namespace Core {
 		Piece get(char file, int8_t rank) const;
 		void set(char file, int8_t rank, Piece p);
 		Piece get(Position pos) const;
+		PieceColor getWhoseTurn() const;
 		void set(Position pos, Piece p);
 		std::vector<Move> getMoves() const;
 		uint64_t getBitboard(Piece p) const;
@@ -30,8 +31,8 @@ namespace Core {
 		bool isInCheck(PieceColor color) const;
 		void make(Move m);
 		void undo();
-		void insertMoveIfOk(Move move, std::vector<Move>& moves) const;
 	private:
+		void insertMoveIfOk(Move move, std::vector<Move>& moves) const;
 		bool areClearAndNotAttackedBy(uint64_t bitboard, PieceColor attackerColor) const;
 		uint64_t& getBitboardRef(Piece p);
 		void setAllZero(Position pos);

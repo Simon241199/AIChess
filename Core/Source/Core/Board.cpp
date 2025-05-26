@@ -46,7 +46,6 @@ namespace Core {
 			}
 			r--;
 		}
-		logBitboard(this->blackKings);
 	}
 
 	Piece Board::get(char file, int8_t rank) const
@@ -62,6 +61,11 @@ namespace Core {
 	Piece Board::get(Position pos) const
 	{
 		return this->pieces[pos.index()];
+	}
+
+	PieceColor Board::getWhoseTurn() const
+	{
+		return this->whoseTurn;
 	}
 
 	void Board::set(Position pos, Piece p)
