@@ -16,6 +16,8 @@ int main() {
 	SetConsoleOutputCP(CP_UTF8);  // Konsole auf UTF-8 Codepage umstellen
 #endif
 
+	askCompatibility();
+
 	Core::Board b;
 
 	while (true)
