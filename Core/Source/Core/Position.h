@@ -1,22 +1,27 @@
 #pragma once
 #include <cstdint>
+#include <string>
 
 namespace Core {
 	class Position
 	{
 	public:
-		static Position FromBitboard(uint64_t bitboard);
-		static Position FromFileRank(char file, int8_t rank);
+		static Position fromBitboard(uint64_t bitboard);
+		static Position fromFileRank(char file, int8_t rank);
 		Position(uint8_t index);
 		Position(int8_t x, int8_t y);
-		int8_t X() const;
-		int8_t Y() const;
-		Position Add(int8_t x, int8_t y) const;
-		bool IsOnBoard() const;
-		uint8_t Index() const;
-		uint64_t Bitboard() const;
+		int8_t x() const;
+		int8_t y() const;
+		Position add(int8_t x, int8_t y) const;
+		bool isOnBoard() const;
+		uint8_t index() const;
+		uint64_t bitboard() const;
+		std::string toString() const;
+		bool operator==(const Position& other) const;
 	private:
-		uint8_t index;
+		uint8_t m_index;
 	};
+
+	Position popBit(uint64_t& bitboard);
 };
 

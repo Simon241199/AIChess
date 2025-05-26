@@ -5,19 +5,21 @@ namespace Core {
 
 	class Move
 	{
-		Move(Position from, Position to, Piece p, Piece pieceOnTargetSquare = Piece::None, Piece promotion = Piece::None);
+	public:
+		Move(Position from, Position to, Piece p, Piece pieceOnTargetSquare = Piece::None, PieceType promotion = PieceType::None);
 
-		bool IsPawnMove();
-		bool IsDoublePawnMove();
-		bool IsEnPassent();
-		bool IsPromotion();
-		bool IsCapture();
-		PieceType GetCapturedPiece();
-		PieceType GetPromotionPiece();
-		Position GetFrom();
-		Position GetTo();
+		bool isPawnMove() const;
+		bool isDoublePawnMove() const;
+		bool isEnPassent() const;
+		bool isPromotion() const;
+		bool isCapture() const;
+		PieceType getCapturedPiece() const;
+		PieceType getPromotionPiece() const;
+		PieceType getPieceOnTargetSquare() const;
+		Position getFrom() const;
+		Position getTo() const;
+		std::string toString() const;
 	private:
 		uint16_t data;
 	};
-
 };

@@ -1,7 +1,7 @@
 #include "Pieces.h"
 
 namespace Core {
-	Piece WhiteOf(PieceType t)
+	Piece whiteOf(PieceType t)
 	{
 		switch (t)
 		{
@@ -21,7 +21,7 @@ namespace Core {
 		return Piece::None;;
 	}
 
-	Piece BlackOf(PieceType t)
+	Piece blackOf(PieceType t)
 	{
 		switch (t)
 		{
@@ -41,7 +41,29 @@ namespace Core {
 		return Piece::None;;
 	}
 
-	PieceType PieceTypeOf(Piece p)
+	PieceColor colorOf(Piece p)
+	{
+		switch (p)
+		{
+		case Core::Piece::WhitePawn:
+		case Core::Piece::WhiteKnight:
+		case Core::Piece::WhiteBishop:
+		case Core::Piece::WhiteRook:
+		case Core::Piece::WhiteQueen:
+		case Core::Piece::WhiteKing:
+			return PieceColor::White;
+		case Core::Piece::BlackPawn:
+		case Core::Piece::BlackKnight:
+		case Core::Piece::BlackBishop:
+		case Core::Piece::BlackRook:
+		case Core::Piece::BlackQueen:
+		case Core::Piece::BlackKing:
+			return PieceColor::Black;
+		}
+		return PieceColor::None;
+	}
+
+	PieceType pieceTypeOf(Piece p)
 	{
 		switch (p)
 		{
@@ -67,52 +89,136 @@ namespace Core {
 		return PieceType::None;
 	}
 
-	bool SameType(Piece p1, Piece p2)
+	Piece pieceFrom(PieceType t, PieceColor c)
 	{
-		return IsPawn(p1) && IsPawn(p2)
-			|| IsKnight(p1) && IsKnight(p2)
-			|| IsBishop(p1) && IsBishop(p2)
-			|| IsRook(p1) && IsRook(p2)
-			|| IsQueen(p1) && IsQueen(p2)
-			|| IsKing(p1) && IsKing(p2);
+		switch (c)
+		{
+		case Core::PieceColor::White:
+			return whiteOf(t);
+		case Core::PieceColor::Black:
+			return blackOf(t);
+		}
+		return Piece::None;
 	}
 
-	bool IsNone(Piece p)
+	Piece pawnOf(PieceColor c)
+	{
+		switch (c)
+		{
+		case PieceColor::White:
+			return Piece::WhitePawn;
+		case PieceColor::Black:
+			return Piece::BlackPawn;
+		}
+		return Piece::None;
+	}
+
+	Piece knightOf(PieceColor c)
+	{
+		switch (c)
+		{
+		case PieceColor::White:
+			return Piece::WhiteKnight;
+		case PieceColor::Black:
+			return Piece::BlackKnight;
+		}
+		return Piece::None;
+	}
+
+	Piece bishopOf(PieceColor c)
+	{
+		switch (c)
+		{
+		case PieceColor::White:
+			return Piece::WhiteBishop;
+		case PieceColor::Black:
+			return Piece::BlackBishop;
+		}
+		return Piece::None;
+	}
+
+	Piece rookOf(PieceColor c)
+	{
+		switch (c)
+		{
+		case PieceColor::White:
+			return Piece::WhiteRook;
+		case PieceColor::Black:
+			return Piece::BlackRook;
+		}
+		return Piece::None;
+	}
+
+	Piece queenOf(PieceColor c)
+	{
+		switch (c)
+		{
+		case PieceColor::White:
+			return Piece::WhiteQueen;
+		case PieceColor::Black:
+			return Piece::BlackQueen;
+		}
+		return Piece::None;
+	}
+
+	Piece kingOf(PieceColor c)
+	{
+		switch (c)
+		{
+		case PieceColor::White:
+			return Piece::WhiteKing;
+		case PieceColor::Black:
+			return Piece::BlackKing;
+		}
+		return Piece::None;
+	}
+
+	bool sameType(Piece p1, Piece p2)
+	{
+		return isPawn(p1) && isPawn(p2)
+			|| isKnight(p1) && isKnight(p2)
+			|| isBishop(p1) && isBishop(p2)
+			|| isRook(p1) && isRook(p2)
+			|| isQueen(p1) && isQueen(p2)
+			|| isKing(p1) && isKing(p2);
+	}
+
+	bool isNone(Piece p)
 	{
 		return p == Piece::None;
 	}
 
-	bool IsPawn(Piece p)
+	bool isPawn(Piece p)
 	{
 		return p == Piece::WhitePawn || p == Piece::BlackPawn;
 	}
 
-	bool IsKnight(Piece p)
+	bool isKnight(Piece p)
 	{
 		return p == Piece::WhiteKnight || p == Piece::BlackKnight;
 	}
 
-	bool IsBishop(Piece p)
+	bool isBishop(Piece p)
 	{
 		return p == Piece::WhiteBishop || p == Piece::BlackBishop;
 	}
 
-	bool IsRook(Piece p)
+	bool isRook(Piece p)
 	{
 		return p == Piece::WhiteRook || p == Piece::BlackRook;
 	}
 
-	bool IsQueen(Piece p)
+	bool isQueen(Piece p)
 	{
 		return p == Piece::WhiteQueen || p == Piece::BlackQueen;
 	}
 
-	bool IsKing(Piece p)
+	bool isKing(Piece p)
 	{
 		return p == Piece::WhiteKing || p == Piece::BlackKing;
 	}
 
-	bool IsWhite(Piece p)
+	bool isWhite(Piece p)
 	{
 		switch (p) {
 		case Piece::WhitePawn:
@@ -126,7 +232,7 @@ namespace Core {
 		return false;
 	}
 
-	bool IsBlack(Piece p)
+	bool isBlack(Piece p)
 	{
 		switch (p) {
 		case Piece::BlackPawn:
@@ -140,9 +246,9 @@ namespace Core {
 		return false;
 	}
 
-	bool IsSameColor(Piece p1, Piece p2)
+	bool isSameColor(Piece p1, Piece p2)
 	{
-		return IsWhite(p1) && IsWhite(p2) || IsBlack(p1) && IsBlack(p2);
+		return isWhite(p1) && isWhite(p2) || isBlack(p1) && isBlack(p2);
 	}
 
 	char getFenChar(Piece p)
@@ -209,11 +315,28 @@ namespace Core {
 
 	bool movesStraight(Piece p)
 	{
-		return IsRook(p) || IsQueen(p);
+		return isRook(p) || isQueen(p);
 	}
 
 	bool movesDiagonal(Piece p)
 	{
-		return IsBishop(p) || IsQueen(p);
+		return isBishop(p) || isQueen(p);
+	}
+
+	PieceColor invert(PieceColor c)
+	{
+		switch (c)
+		{
+		case PieceColor::White:
+			return PieceColor::Black;
+		case PieceColor::Black:
+			return PieceColor::White;
+		}
+		return PieceColor::None;
+	}
+
+	bool isSameColor(PieceColor c, Piece p)
+	{
+		return colorOf(p) == c;
 	}
 };

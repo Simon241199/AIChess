@@ -3,59 +3,75 @@
 
 namespace Core {
 
-	Position Position::FromBitboard(uint64_t bitboard)
+	Position Position::fromBitboard(uint64_t bitboard)
 	{
 		return Position(std::countr_zero(bitboard));
 	}
 
-	Position Position::FromFileRank(char file, int8_t rank)
+	Position Position::fromFileRank(char file, int8_t rank)
 	{
 		return Position(file - 'a', rank - 1);
 	}
 
 	Position::Position(uint8_t index)
-		: index(index)
+		: m_index(index)
 	{
 	}
 
 	Position::Position(int8_t x, int8_t y)
-		: index(x + y * 8)
+		: m_index(x + y * 8)
 	{
 		if (x < 0 || x>7 || y < 0 || y>7) {
-			index = 128;    // set to invalid position
+			m_index = 128;    // set to invalid position
 		}
 	}
 
-	int8_t Position::X() const
+	int8_t Position::x() const
 	{
-		return this->index % 8;
+		return this->m_index % 8;
 	}
 
-	int8_t Position::Y() const
+	int8_t Position::y() const
 	{
-		return this->index / 8;
+		return this->m_index / 8;
 	}
 
-	Position Position::Add(int8_t x, int8_t y) const
+	Position Position::add(int8_t x, int8_t y) const
 	{
-		if (this->IsOnBoard()) {
-			return Position(this->X() + x, this->Y() + y);
+		if (this->isOnBoard()) {
+			return Position(this->x() + x, this->y() + y);
 		}
 		return *this;
 	}
 
-	bool Position::IsOnBoard() const
+	bool Position::isOnBoard() const
 	{
-		return this->index < 64;
+		return this->m_index < 64;
 	}
 
-	uint8_t Position::Index() const
+	uint8_t Position::index() const
 	{
-		return this->index;
+		return this->m_index;
 	}
 
-	uint64_t Position::Bitboard() const
+	uint64_t Position::bitboard() const
 	{
-		return uint64_t{ 1 } << this->index;
+		return uint64_t{ 1 } << this->m_index;
+	}
+
+	std::string Position::toString() const {
+		return char{ this->x() + 'a' } + std::to_string(int{ this->y() + 1 });
+	}
+
+	bool Position::operator==(const Position& other) const
+	{
+		return this->m_index == other.m_index;
+	}
+
+	Position popBit(uint64_t& bitboard)
+	{
+		Position out(std::countr_zero(bitboard));
+		bitboard ^= uint64_t{ 1 } << out.index();
+		return out;
 	}
 };

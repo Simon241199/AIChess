@@ -20,6 +20,12 @@ namespace Core {
 		BlackKing,
 	};
 
+	enum class PieceColor : uint8_t {
+		None,
+		White,
+		Black,
+	};
+
 	enum class PieceType : uint8_t {
 		None = 0,
 		Pawn = 1,
@@ -30,24 +36,34 @@ namespace Core {
 		King = 6,
 	};
 
-	Piece WhiteOf(PieceType t);
-	Piece BlackOf(PieceType t);
-	PieceType PieceTypeOf(Piece p);
+	Piece whiteOf(PieceType t);
+	Piece blackOf(PieceType t);
+	PieceColor colorOf(Piece p);
+	PieceType pieceTypeOf(Piece p);
+	Piece pieceFrom(PieceType t,PieceColor c);
 
-	bool SameType(Piece p1, Piece p2);
+	Piece pawnOf(PieceColor c);
+	Piece knightOf(PieceColor c);
+	Piece bishopOf(PieceColor c);
+	Piece rookOf(PieceColor c);
+	Piece queenOf(PieceColor c);
+	Piece kingOf(PieceColor c);
 
-	bool IsNone(Piece p);
-	bool IsPawn(Piece p);
-	bool IsKnight(Piece p);
-	bool IsBishop(Piece p);
-	bool IsRook(Piece p);
-	bool IsQueen(Piece p);
-	bool IsKing(Piece p);
+	bool sameType(Piece p1, Piece p2);
 
-	bool IsWhite(Piece p);
-	bool IsBlack(Piece p);
+	bool isNone(Piece p);
+	bool isPawn(Piece p);
+	bool isKnight(Piece p);
+	bool isBishop(Piece p);
+	bool isRook(Piece p);
+	bool isQueen(Piece p);
+	bool isKing(Piece p);
 
-	bool IsSameColor(Piece p1, Piece p2);
+	bool isWhite(Piece p);
+	bool isBlack(Piece p);
+
+	bool isSameColor(Piece p1, Piece p2);
+	bool isSameColor(PieceColor c, Piece p);
 
 	char getFenChar(Piece p);
 
@@ -55,4 +71,6 @@ namespace Core {
 
 	bool movesStraight(Piece p);
 	bool movesDiagonal(Piece p);
+
+	PieceColor invert(PieceColor c);
 };

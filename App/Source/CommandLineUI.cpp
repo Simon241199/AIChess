@@ -34,6 +34,7 @@ std::string toUnicode(Core::Piece p) {
 
 void Display(const Core::Board& b)
 {
+	std::cout << std::endl;
 	std::cout << "\033[2J\033[H"; // erase screen and reset cursor position
 	for (int rank = 8; rank >= 1; rank--) {
 		for (char file = 'a'; file <= 'h'; file++) {
@@ -44,7 +45,7 @@ void Display(const Core::Board& b)
 				std::cout << "\033[48;5;34m"; // light square
 			}
 			Core::Piece p = b.get(file, rank);
-			if (IsWhite(p)) {
+			if (isWhite(p)) {
 				std::cout << "\033[38;5;15m"; // white piece
 			}
 			else {

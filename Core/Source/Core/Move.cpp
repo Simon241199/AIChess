@@ -25,87 +25,87 @@ namespace Core {
 		};
 	};
 
-	Move::Move(Position from, Position to, Piece p, Piece pieceOnTargetSquare, Piece promotion) {
+	Move::Move(Position from, Position to, Piece p, Piece pieceOnTargetSquare, PieceType promotion) {
 		this->data = 0;
-		if (IsPawn(p)) {
+		if (isPawn(p)) {
 			this->data |= uint16_t{ 1 } << 15;
 
-			uint16_t pawnMoveDir = (to.Y() > from.Y()) ? PawnMoveDir::Front : PawnMoveDir::Back;
-			if (to.X() < from.X()) {
-				pawnMoveDir = (to.Y() > from.Y()) ? PawnMoveDir::FrontLeft : PawnMoveDir::BackLeft;
+			uint16_t pawnMoveDir = (to.y() > from.y()) ? PawnMoveDir::Front : PawnMoveDir::Back;
+			if (to.x() < from.x()) {
+				pawnMoveDir = (to.y() > from.y()) ? PawnMoveDir::FrontLeft : PawnMoveDir::BackLeft;
 			}
-			else if (to.X() > from.X()) {
-				pawnMoveDir = (to.Y() > from.Y()) ? PawnMoveDir::FrontRight : PawnMoveDir::BackRight;
+			else if (to.x() > from.x()) {
+				pawnMoveDir = (to.y() > from.y()) ? PawnMoveDir::FrontRight : PawnMoveDir::BackRight;
 			}
 			this->data |= uint16_t{ pawnMoveDir } << 12;
 
 			uint16_t pawnMoveType = PawnMoveTyp::Normal;
-			if (std::abs(from.Y() - to.Y()) == 2) {
+			if (std::abs(from.y() - to.y()) == 2) {
 				pawnMoveType = PawnMoveTyp::Double;
 			}
-			else if (to.X() != from.X() && pieceOnTargetSquare == Piece::None) {
+			else if (to.x() != from.x() && pieceOnTargetSquare == Piece::None) {
 				pawnMoveType = PawnMoveTyp::EnPassent;
 			}
-			else if (IsQueen(promotion)) {
+			else if (promotion == PieceType::Queen) {
 				pawnMoveType = PawnMoveTyp::QueenPromotion;
 			}
-			else if (IsRook(promotion)) {
+			else if (promotion == PieceType::Rook) {
 				pawnMoveType = PawnMoveTyp::RookPromotion;
 			}
-			else if (IsBishop(promotion)) {
+			else if (promotion == PieceType::Bishop) {
 				pawnMoveType = PawnMoveTyp::BishopPromotion;
 			}
-			else if (IsKnight(promotion)) {
+			else if (promotion == PieceType::Knight) {
 				pawnMoveType = PawnMoveTyp::KnightPromotion;
 			}
 			this->data |= pawnMoveType << 9;
 
-			this->data |= uint16_t{ to.Index() } << 3;
+			this->data |= uint16_t{ to.index() } << 3;
 
 			uint16_t pieceOnTargetSquareData = uint16_t(PieceType::None);
-			if (IsPawn(pieceOnTargetSquare)) {
+			if (isPawn(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Pawn);
 			}
-			else if (IsKnight(pieceOnTargetSquare)) {
+			else if (isKnight(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Knight);
 			}
-			else if (IsBishop(pieceOnTargetSquare)) {
+			else if (isBishop(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Bishop);
 			}
-			else if (IsRook(pieceOnTargetSquare)) {
+			else if (isRook(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Rook);
 			}
-			else if (IsQueen(pieceOnTargetSquare)) {
+			else if (isQueen(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Queen);
 			}
-			else if (IsKing(pieceOnTargetSquare)) {
+			else if (isKing(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::King);
 			}
 			this->data |= pieceOnTargetSquareData;
 			return;
 		}
 		else {
-			this->data |= uint16_t{ from.Index() } << 9;
+			this->data |= uint16_t{ from.index() } << 9;
 
-			this->data |= uint16_t{ to.Index() } << 3;
+			this->data |= uint16_t{ to.index() } << 3;
 
 			uint16_t pieceOnTargetSquareData = uint16_t(PieceType::None);
-			if (IsPawn(pieceOnTargetSquare)) {
+			if (isPawn(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Pawn);
 			}
-			else if (IsKnight(pieceOnTargetSquare)) {
+			else if (isKnight(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Knight);
 			}
-			else if (IsBishop(pieceOnTargetSquare)) {
+			else if (isBishop(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Bishop);
 			}
-			else if (IsRook(pieceOnTargetSquare)) {
+			else if (isRook(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Rook);
 			}
-			else if (IsQueen(pieceOnTargetSquare)) {
+			else if (isQueen(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::Queen);
 			}
-			else if (IsKing(pieceOnTargetSquare)) {
+			else if (isKing(pieceOnTargetSquare)) {
 				pieceOnTargetSquareData = uint16_t(PieceType::King);
 			}
 			this->data |= pieceOnTargetSquareData;
@@ -113,47 +113,47 @@ namespace Core {
 		}
 	}
 
-	bool Move::IsPawnMove()
+	bool Move::isPawnMove() const
 	{
 		return (this->data >> 15) == 1;
 	}
 
-	bool Move::IsDoublePawnMove()
+	bool Move::isDoublePawnMove() const
 	{
-		return this->IsPawnMove() && ((this->data >> 9) & 0b0111) == PawnMoveTyp::Double;
+		return this->isPawnMove() && ((this->data >> 9) & 0b0111) == PawnMoveTyp::Double;
 	}
 
-	bool Move::IsEnPassent()
+	bool Move::isEnPassent() const
 	{
-		return this->IsPawnMove() && ((this->data >> 9) & 0b0111) == PawnMoveTyp::EnPassent;
+		return this->isPawnMove() && ((this->data >> 9) & 0b0111) == PawnMoveTyp::EnPassent;
 	}
 
-	bool Move::IsPromotion()
+	bool Move::isPromotion() const
 	{
 		uint16_t pawnMoveType = (this->data >> 9) & 0b0111;
-		return this->IsPawnMove()
+		return this->isPawnMove()
 			&& (pawnMoveType == PawnMoveTyp::QueenPromotion
 				|| pawnMoveType == PawnMoveTyp::RookPromotion
 				|| pawnMoveType == PawnMoveTyp::BishopPromotion
 				|| pawnMoveType == PawnMoveTyp::KnightPromotion);
 	}
 
-	bool Move::IsCapture()
+	bool Move::isCapture() const
 	{
-		return this->IsEnPassent() || (this->data & 0b0111) != 0;
+		return this->isEnPassent() || (this->data & 0b0111) != 0;
 	}
 
-	PieceType Move::GetCapturedPiece()
+	PieceType Move::getCapturedPiece() const
 	{
-		if (this->IsEnPassent()) {
+		if (this->isEnPassent()) {
 			return PieceType::Pawn;
 		}
 		return PieceType(this->data & 0b0111);
 	}
 
-	PieceType Move::GetPromotionPiece()
+	PieceType Move::getPromotionPiece() const
 	{
-		if (!this->IsPawnMove()) {
+		if (!this->isPawnMove()) {
 			return PieceType::None;
 		}
 		switch ((this->data >> 9) & 0b0111)
@@ -170,34 +170,44 @@ namespace Core {
 		return PieceType::None;
 	}
 
-	Position Move::GetFrom()
+	PieceType Move::getPieceOnTargetSquare() const
 	{
-		if (!this->IsPawnMove()) {
+		return PieceType(this->data & 0b0111);
+	}
+
+	Position Move::getFrom() const
+	{
+		if (!this->isPawnMove()) {
 			return Position((this->data >> 9) & 0b0011'1111);
 		}
-		Position out = GetTo();
+		Position out = getTo();
 		uint8_t dir = (this->data >> 12) & 0b111;
 		if ((dir & 0b100) == 0) {
-			out = out.Add(0, (this->IsDoublePawnMove()) ? -2 : -1);
+			out = out.add(0, (this->isDoublePawnMove()) ? -2 : -1);
 		}
 		else {
-			out = out.Add(0, (this->IsDoublePawnMove()) ? 2 : 1);
+			out = out.add(0, (this->isDoublePawnMove()) ? 2 : 1);
 		}
 
 		switch (dir) {
 		case PawnMoveDir::FrontLeft:
 		case PawnMoveDir::BackLeft:
-			out = out.Add(1, 0);
+			out = out.add(1, 0);
 			break;
 		case PawnMoveDir::FrontRight:
 		case PawnMoveDir::BackRight:
-			out = out.Add(-1, 0);
+			out = out.add(-1, 0);
 			break;
 		}
+		return out;
 	}
 
-	Position Move::GetTo()
+	Position Move::getTo() const
 	{
 		return Position((this->data >> 3) & 0b0011'1111);
+	}
+
+	std::string Move::toString() const {
+		return this->getFrom().toString() + this->getTo().toString();
 	}
 };
