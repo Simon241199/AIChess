@@ -1,4 +1,5 @@
 #include "MoveGenLookUp.h"
+
 namespace Core {
 
 	const std::array<std::pair<uint64_t, uint8_t>, 64> DIAGONAL_MAGIC{

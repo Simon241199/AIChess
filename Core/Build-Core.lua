@@ -5,6 +5,9 @@ project "Core"
    targetdir "Binaries/%{cfg.buildcfg}"
    staticruntime "off"
 
+   -- pchheader "TorchPch.h"
+   -- pchsource "Core/Source/Core/TorchPch.cpp"
+
    files { "Source/**.h", "Source/**.cpp" }
 
    includedirs {

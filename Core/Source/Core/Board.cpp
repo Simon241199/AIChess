@@ -1,7 +1,9 @@
 #include "Board.h"
+
 #include <ranges>
 #include <vector>
 #include <iostream>
+
 #include "MoveGenLookUp.h"
 #include "Move.h"
 #include "Utility.h"
@@ -108,15 +110,16 @@ namespace Core {
 		uint64_t thisTeam = this->getBitboardOf(this->whoseTurn);
 		uint64_t opponentTeam = this->getBitboardOf(opponentColor);
 
-		for (uint8_t index = 0; index < 64; index++) {
+		/*for (uint8_t index = 0; index < 64; index++) {
 			Position from(index);
 			Piece piece = this->get(from);
 			if (!isSameColor(this->whoseTurn, piece)) {
 				continue;
-			}
-			PieceType type = pieceTypeOf(piece);
+			}*/
 
-			if (type == PieceType::Pawn) {
+			uint64_t pawns = this->getPawnBitboard(this->whoseTurn);
+			while (pawns != 0) {
+				Position from = popBit(pawns);
 				uint64_t targetBits = (this->whoseTurn == PieceColor::White) ? WHITE_PAWN_MASKS[from.index()] : BLACK_PAWN_MASKS[from.index()];
 				targetBits &= ~thisTeam;
 				uint64_t captureTargetsBitboard = targetBits & opponentTeam;
@@ -133,11 +136,11 @@ namespace Core {
 					}
 					if (targetPos.y() == 0 || targetPos.y() == 7) {
 						for (PieceType promotionType : {PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight}) {
-							this->insertMoveIfOk(Move(from, targetPos, piece, this->get(targetPos), promotionType), moves);
+							this->insertMoveIfOk(Move(from, targetPos, true, this->get(targetPos), promotionType), moves);
 						}
 					}
 					else {
-						this->insertMoveIfOk(Move(from, targetPos, piece, this->get(targetPos)), moves);
+						this->insertMoveIfOk(Move(from, targetPos, true, this->get(targetPos)), moves);
 					}
 				}
 
@@ -148,102 +151,156 @@ namespace Core {
 					}
 					if (std::abs(targetPos.y() - from.y()) == 2) {
 						if (!infrontOccupied) {
-							this->insertMoveIfOk(Move(from, targetPos, piece, this->get(targetPos)), moves);
+							this->insertMoveIfOk(Move(from, targetPos, true, this->get(targetPos)), moves);
 						}
 						continue;
 					}
 					if (targetPos.y() == 0 || targetPos.y() == 7) {
 						for (PieceType promotionType : {PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight}) {
-							this->insertMoveIfOk(Move(from, targetPos, piece, Piece::None, promotionType), moves);
+							this->insertMoveIfOk(Move(from, targetPos, true, Piece::None, promotionType), moves);
 						}
 					}
 					else {
-						this->insertMoveIfOk(Move(from, targetPos, piece), moves);
+						this->insertMoveIfOk(Move(from, targetPos, true), moves);
 					}
 				}
 
 				if (std::abs((from.x() + 'a') - this->enPassentFile) == 1 && enPassentFromRank(this->whoseTurn) == from.y()) {
-					this->insertMoveIfOk(Move(from, Position(this->enPassentFile - 'a', (this->whoseTurn == PieceColor::White) ? from.y() + 1 : from.y() - 1), piece), moves);
+					this->insertMoveIfOk(Move(from, Position(this->enPassentFile - 'a', (this->whoseTurn == PieceColor::White) ? from.y() + 1 : from.y() - 1), true), moves);
 				}
 			}
 
-			if (type == PieceType::Knight) {
+
+			uint64_t knights = this->getKnightBitboard(this->whoseTurn);
+			while (knights != 0) {
+				Position from = popBit(knights);
 				uint64_t targetBits = KNIGHT_MASKS[from.index()] & ~thisTeam;
 				while (targetBits != 0) {
 					Position targetPos = popBit(targetBits);
-					this->insertMoveIfOk(Move(from, targetPos, piece, this->get(targetPos)), moves);
+					this->insertMoveIfOk(Move(from, targetPos, false, this->get(targetPos)), moves);
 				}
 			}
 
-			if (type == PieceType::Bishop) {
+			uint64_t diagonalPieces = this->getDiagonalBitboard(this->whoseTurn);
+			while (diagonalPieces != 0) {
+				Position from = popBit(diagonalPieces);
 				auto [magicMult, magicShift] = DIAGONAL_MAGIC[from.index()];
 				uint64_t targetBits = DIAGONAL_MAGIC_LOOKUP[(((DIAGONAL_BLOCKER_MASKS[from.index()] & occupied) * magicMult) >> magicShift) * 64 + from.index()] & ~thisTeam;
 				while (targetBits != 0) {
 					Position targetPos = popBit(targetBits);
-					this->insertMoveIfOk(Move(from, targetPos, piece, this->get(targetPos)), moves);
+					this->insertMoveIfOk(Move(from, targetPos, false, this->get(targetPos)), moves);
 				}
 			}
 
-			if (type == PieceType::Rook) {
+			uint64_t straightPieces = this->getStraightBitboard(this->whoseTurn);
+			while (straightPieces != 0) {
+				Position from = popBit(straightPieces);
 				auto [magicMult, magicShift] = STRAIGHT_MAGIC[from.index()];
 				uint64_t targetBits = STRAIGHT_MAGIC_LOOKUP[(((STRAIGHT_BLOCKER_MASKS[from.index()] & occupied) * magicMult) >> magicShift) * 64 + from.index()] & ~thisTeam;
 				while (targetBits != 0) {
 					Position targetPos = popBit(targetBits);
-					this->insertMoveIfOk(Move(from, targetPos, piece, this->get(targetPos)), moves);
+					this->insertMoveIfOk(Move(from, targetPos, false, this->get(targetPos)), moves);
 				}
 			}
 
-			if (type == PieceType::Queen) {
-				auto [magicMultD, magicShiftD] = DIAGONAL_MAGIC[from.index()];
-				uint64_t diagBits = DIAGONAL_MAGIC_LOOKUP[(((DIAGONAL_BLOCKER_MASKS[from.index()] & occupied) * magicMultD) >> magicShiftD) * 64 + from.index()];
-
-				auto [magicMultS, magicShiftS] = STRAIGHT_MAGIC[from.index()];
-				uint64_t straBits = STRAIGHT_MAGIC_LOOKUP[(((STRAIGHT_BLOCKER_MASKS[from.index()] & occupied) * magicMultS) >> magicShiftS) * 64 + from.index()];
-
-				uint64_t targetBits = (diagBits | straBits) & ~thisTeam;
-
-				while (targetBits != 0) {
-					Position targetPos = popBit(targetBits);
-					this->insertMoveIfOk(Move(from, targetPos, piece, this->get(targetPos)), moves);
-				}
-			}
-
-			if (type == PieceType::King) {
+			uint64_t kings = this->getKingBitboard(this->whoseTurn);
+			while (kings != 0) {
+				Position from = popBit(kings);
 				uint64_t targetBits = KING_MASKS[from.index()] & ~thisTeam;
 				while (targetBits != 0) {
 					Position targetPos = popBit(targetBits);
-					this->insertMoveIfOk(Move(from, targetPos, piece, this->get(targetPos)), moves);
+					this->insertMoveIfOk(Move(from, targetPos, false, this->get(targetPos)), moves);
 				}
 				if (!this->isInCheck(this->whoseTurn)) {
 					CastlingRights rights = this->castlingRightsHistory.top();
 					if (this->whoseTurn == PieceColor::White) {
-						if (areClearAndNotAttackedBy((int64_t{ 1 } << 1) | (int64_t{ 1 } << 2) | (int64_t{ 1 } << 3), opponentColor) && rights.canWhiteQueenSideCastle) {
-							this->insertMoveIfOk(Move(from, from.add(-2, 0), piece), moves);
+						if (areNotAttackedBy((int64_t{ 1 } << 2) | (int64_t{ 1 } << 3), opponentColor) && rights.canWhiteQueenSideCastle
+							&& (((int64_t{ 1 } << 1) | (int64_t{ 1 } << 2) | (int64_t{ 1 } << 3)) & occupied) == 0) {
+							this->insertMoveIfOk(Move(from, from.add(-2, 0), false), moves);
 						}
-						if (areClearAndNotAttackedBy((int64_t{ 1 } << 5) | (int64_t{ 1 } << 6), opponentColor) && rights.canWhiteKingSideCastle) {
-							this->insertMoveIfOk(Move(from, from.add(2, 0), piece), moves);
+						if (areNotAttackedBy((int64_t{ 1 } << 5) | (int64_t{ 1 } << 6), opponentColor) && rights.canWhiteKingSideCastle
+							&& (((int64_t{ 1 } << 5) | (int64_t{ 1 } << 6)) & occupied) == 0) {
+							this->insertMoveIfOk(Move(from, from.add(2, 0), false), moves);
 						}
 					}
 					else { // Black
-						if (areClearAndNotAttackedBy((int64_t{ 1 } << 57) | (int64_t{ 1 } << 58) | (int64_t{ 1 } << 59), opponentColor) && rights.canBlackQueenSideCastle) {
-							this->insertMoveIfOk(Move(from, from.add(-2, 0), piece), moves);
+						if (areNotAttackedBy((int64_t{ 1 } << 58) | (int64_t{ 1 } << 59), opponentColor) && rights.canBlackQueenSideCastle
+							&& (((int64_t{ 1 } << 57) | (int64_t{ 1 } << 58) | (int64_t{ 1 } << 59)) & occupied) == 0) {
+							this->insertMoveIfOk(Move(from, from.add(-2, 0), false), moves);
 						}
-						if (areClearAndNotAttackedBy((int64_t{ 1 } << 61) | (int64_t{ 1 } << 62), opponentColor) && rights.canBlackKingSideCastle) {
-							this->insertMoveIfOk(Move(from, from.add(2, 0), piece), moves);
+						if (areNotAttackedBy((int64_t{ 1 } << 61) | (int64_t{ 1 } << 62), opponentColor) && rights.canBlackKingSideCastle
+							&& (((int64_t{ 1 } << 61) | (int64_t{ 1 } << 62)) & occupied) == 0) {
+							this->insertMoveIfOk(Move(from, from.add(2, 0), false), moves);
 						}
 					}
 				}
 			}
-		}
+		//}
 		return moves;
 	}
 
-	bool Board::areClearAndNotAttackedBy(uint64_t bitboard, PieceColor attackerColor) const
+	uint64_t Board::getPawnBitboard(PieceColor p) const
 	{
-		uint64_t occupied = this->getOccupiedBitboard();
-		if ((bitboard & occupied) != 0) {
-			return false;
+		switch (p)
+		{
+		case Core::PieceColor::White:
+			return this->whitePawns;
+		case Core::PieceColor::Black:
+			return this->blackPawns;
 		}
+		return 0;
+	}
+
+	uint64_t Board::getKnightBitboard(PieceColor p) const
+	{
+		switch (p)
+		{
+		case Core::PieceColor::White:
+			return this->whiteKnights;
+		case Core::PieceColor::Black:
+			return this->blackKnights;
+		}
+		return 0;
+	}
+
+	uint64_t Board::getDiagonalBitboard(PieceColor p) const
+	{
+		switch (p)
+		{
+		case Core::PieceColor::White:
+			return this->whiteQueens | this->whiteBishops;
+		case Core::PieceColor::Black:
+			return this->blackQueens | this->blackBishops;
+		}
+		return 0;
+	}
+
+	uint64_t Board::getStraightBitboard(PieceColor p) const
+	{
+		switch (p)
+		{
+		case Core::PieceColor::White:
+			return this->whiteQueens | this->whiteRooks;
+		case Core::PieceColor::Black:
+			return this->blackQueens | this->blackRooks;
+		}
+		return 0;
+	}
+
+	uint64_t Board::getKingBitboard(PieceColor p) const
+	{
+		switch (p)
+		{
+		case Core::PieceColor::White:
+			return this->whiteKings;
+		case Core::PieceColor::Black:
+			return this->blackKings;
+		}
+		return 0;
+	}
+
+	bool Board::areNotAttackedBy(uint64_t bitboard, PieceColor attackerColor) const
+	{
 		while (bitboard != 0) {
 			Position pos = popBit(bitboard);
 			if (this->isAttackedBy(pos, attackerColor)) {

@@ -5,6 +5,7 @@
 #include <Core/ComActors/SymbolicCom.h>
 #include <Core/ComActors/HybridCom.h>
 #include <Player.h>
+#include <Core/Pieces.h>
 
 static bool compatibility = true;
 
@@ -35,37 +36,6 @@ std::string toUnicode(Core::Piece p) {
 		return std::string(reinterpret_cast<const char*>(u8"♛"));
 	case Core::Piece::BlackKing:
 		return std::string(reinterpret_cast<const char*>(u8"♚"));
-	}
-	return " ";
-}
-
-std::string toAscii(Core::Piece p) {
-	switch (p)
-	{
-	case Core::Piece::WhitePawn:
-		return "P";
-	case Core::Piece::WhiteKnight:
-		return "N";
-	case Core::Piece::WhiteBishop:
-		return "B";
-	case Core::Piece::WhiteRook:
-		return "R";
-	case Core::Piece::WhiteQueen:
-		return "Q";
-	case Core::Piece::WhiteKing:
-		return "K";
-	case Core::Piece::BlackPawn:
-		return "p";
-	case Core::Piece::BlackKnight:
-		return "n";
-	case Core::Piece::BlackBishop:
-		return "b";
-	case Core::Piece::BlackRook:
-		return "r";
-	case Core::Piece::BlackQueen:
-		return "q";
-	case Core::Piece::BlackKing:
-		return "k";
 	}
 	return " ";
 }
@@ -103,7 +73,7 @@ void displayCompatibility(const Core::Board& b)
 	for (int rank = 8; rank >= 1; rank--) {
 		std::cout << "| ";
 		for (char file = 'a'; file <= 'h'; file++) {
-			std::cout << toAscii(b.get(file, rank)) << " | ";
+			std::cout << Core::toAscii(b.get(file, rank)) << " | ";
 		}
 		std::cout << rank << std::endl;
 		std::cout << "+---+---+---+---+---+---+---+---+" << std::endl;

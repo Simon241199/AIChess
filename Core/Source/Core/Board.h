@@ -22,6 +22,11 @@ namespace Core {
 		PieceColor getWhoseTurn() const;
 		void set(Position pos, Piece p);
 		std::vector<Move> getMoves() const;
+		uint64_t getPawnBitboard(PieceColor p) const;
+		uint64_t getKnightBitboard(PieceColor p) const;
+		uint64_t getDiagonalBitboard(PieceColor p) const;
+		uint64_t getStraightBitboard(PieceColor p) const;
+		uint64_t getKingBitboard(PieceColor p) const;
 		uint64_t getBitboard(Piece p) const;
 		uint64_t getWhiteBitboard() const;
 		uint64_t getBlackBitboard() const;
@@ -33,7 +38,7 @@ namespace Core {
 		void undo();
 	private:
 		void insertMoveIfOk(Move move, std::vector<Move>& moves) const;
-		bool areClearAndNotAttackedBy(uint64_t bitboard, PieceColor attackerColor) const;
+		bool areNotAttackedBy(uint64_t bitboard, PieceColor attackerColor) const;
 		uint64_t& getBitboardRef(Piece p);
 		void setAllZero(Position pos);
 		void updateCaslingRights(Move m);

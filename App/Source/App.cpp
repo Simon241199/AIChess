@@ -5,6 +5,7 @@
 #include "Core/Board.h"
 #include "CommandLineUI.h"
 #include "Player.h"
+#include "Test.h"
 
 #include <Core/Position.h>
 #include <Core/MoveGenLookUp.h>
@@ -16,6 +17,7 @@
 #include <thread>
 #include <chrono>
 #include <unordered_map>
+#include <Core/ComActors/PureAI.h>
 
 void gameLoop() {
 	Core::Board b;
@@ -41,6 +43,11 @@ int main() {
 #ifdef _WIN32
 	SetConsoleOutputCP(CP_UTF8);  // Konsole auf UTF-8 Codepage umstellen
 #endif
+
+	Test::runAll();
+
+	Core::PureAI ai;
+	ai.trainAndSave();
 
 	askCompatibility();
 

@@ -73,4 +73,6 @@ namespace Core {
 	bool movesDiagonal(Piece p);
 
 	PieceColor invert(PieceColor c);
+
+	char toAscii(Core::Piece p);
 };

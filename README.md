@@ -1,5 +1,6 @@
 # AIChess
 This is a chess game with a computer opponent using AI to assess moves.
+I am using a [Kaggle dataset](https://www.kaggle.com/datasets/arevel/chess-games) to train the AIs.
 
 ## Getting Started
 1. Clone this repository (maybe in the future with --recurse-submodules)

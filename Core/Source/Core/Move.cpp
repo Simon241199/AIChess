@@ -1,5 +1,7 @@
 #include "Move.h"
+
 #include <cmath>
+
 namespace Core {
 
 	namespace PawnMoveTyp {
@@ -25,9 +27,9 @@ namespace Core {
 		};
 	};
 
-	Move::Move(Position from, Position to, Piece p, Piece pieceOnTargetSquare, PieceType promotion) {
+	Move::Move(Position from, Position to, bool isPawnMove, Piece pieceOnTargetSquare, PieceType promotion) {
 		this->data = 0;
-		if (isPawn(p)) {
+		if (isPawnMove) {
 			this->data |= uint16_t{ 1 } << 15;
 
 			uint16_t pawnMoveDir = (to.y() > from.y()) ? PawnMoveDir::Front : PawnMoveDir::Back;
@@ -227,5 +229,9 @@ namespace Core {
 			break;
 		}
 		return this->getFrom().toString() + this->getTo().toString() + promotionPiece;
+	}
+	bool Move::operator==(const Move& other) const
+	{
+		return this->data == other.data;
 	}
 };

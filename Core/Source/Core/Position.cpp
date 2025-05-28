@@ -1,4 +1,5 @@
 #include "Position.h"
+
 #include <bit>
 
 namespace Core {
