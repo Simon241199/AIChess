@@ -1,6 +1,6 @@
 #pragma once
-#include "Core/Board.h"
-#include <Core/Actor.h>
+#include <Board.h>
+#include <Actor.h>
 
 void askCompatibility();
 

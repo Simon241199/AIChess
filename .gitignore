@@ -13,4 +13,9 @@ Makefile
 
 # Exclude
 !Vendor/Binaries
-Core/Source/Core/ComActors/resources/chess_games.csv
+App/resources/processedData/*.pt
+App/resources/**/*.csv
+App/resources/chessDataRatings.pt
+App/resources/chessDataPositions.pt
+App/resources/tacticEvalsPositions.pt
+App/resources/tacticEvalsRatings.pt

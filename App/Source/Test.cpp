@@ -1,8 +1,9 @@
 #include "Test.h"
 #include "CommandLineUI.h"
 
-#include <Core/Board.h>
-#include <Core/Utility.h>
+#include <Board.h>
+#include <Utility.h>
+
 #include <iostream>
 
 namespace Test {

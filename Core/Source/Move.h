@@ -7,10 +7,12 @@ namespace Core {
 	{
 	public:
 		Move(Position from, Position to, bool isPawnMove, Piece pieceOnTargetSquare = Piece::None, PieceType promotion = PieceType::None);
+		Move();
 
+		bool isNull() const;
 		bool isPawnMove() const;
 		bool isDoublePawnMove() const;
-		bool isEnPassent() const;
+		bool isEnPassant() const;
 		bool isPromotion() const;
 		bool isCapture() const;
 		PieceType getCapturedPiece() const;

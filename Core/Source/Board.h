@@ -36,12 +36,13 @@ namespace Core {
 		bool isInCheck(PieceColor color) const;
 		void make(Move m);
 		void undo();
+		uint64_t hash() const;
 	private:
 		void insertMoveIfOk(Move move, std::vector<Move>& moves) const;
 		bool areNotAttackedBy(uint64_t bitboard, PieceColor attackerColor) const;
 		uint64_t& getBitboardRef(Piece p);
 		void setAllZero(Position pos);
-		void updateCaslingRights(Move m);
+		void updateCastlingRights(Move m);
 
 		std::array<Piece, 64> pieces{ Piece::None };
 
@@ -61,7 +62,7 @@ namespace Core {
 
 
 		PieceColor whoseTurn;
-		char enPassentFile;
+		char enPassantFile;
 		std::stack<int> halfmoveClockStack;
 		int fullmoveClock;
 		struct CastlingRights {

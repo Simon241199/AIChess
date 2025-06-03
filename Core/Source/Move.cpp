@@ -115,6 +115,16 @@ namespace Core {
 		}
 	}
 
+	Move::Move()
+		: data(0)
+	{
+	}
+
+	bool Move::isNull() const
+	{
+		return this->data == 0;
+	}
+
 	bool Move::isPawnMove() const
 	{
 		return (this->data >> 15) == 1;
@@ -125,7 +135,7 @@ namespace Core {
 		return this->isPawnMove() && ((this->data >> 9) & 0b0111) == PawnMoveTyp::Double;
 	}
 
-	bool Move::isEnPassent() const
+	bool Move::isEnPassant() const
 	{
 		return this->isPawnMove() && ((this->data >> 9) & 0b0111) == PawnMoveTyp::EnPassent;
 	}
@@ -142,12 +152,12 @@ namespace Core {
 
 	bool Move::isCapture() const
 	{
-		return this->isEnPassent() || (this->data & 0b0111) != 0;
+		return this->isEnPassant() || (this->data & 0b0111) != 0;
 	}
 
 	PieceType Move::getCapturedPiece() const
 	{
-		if (this->isEnPassent()) {
+		if (this->isEnPassant()) {
 			return PieceType::Pawn;
 		}
 		return PieceType(this->data & 0b0111);

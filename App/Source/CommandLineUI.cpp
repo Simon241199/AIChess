@@ -1,11 +1,11 @@
 ﻿#include "CommandLineUI.h"
 #include <iostream>
 #include <vector>
-#include <Core/ComActors/PureAI.h>
-#include <Core/ComActors/SymbolicCom.h>
-#include <Core/ComActors/HybridCom.h>
+#include <ComActors/SubsymbolicCom.h>
+#include <ComActors/SymbolicCom.h>
+#include <ComActors/NeuroSymbolicCom.h>
 #include <Player.h>
-#include <Core/Pieces.h>
+#include <Pieces.h>
 
 static bool compatibility = true;
 
@@ -45,8 +45,10 @@ void displayColored(const Core::Board& b)
 {
 	std::cout << std::endl;
 	std::cout << "\033[2J\033[H"; // erase screen and reset cursor position
-	for (int rank = 8; rank >= 1; rank--) {
-		for (char file = 'a'; file <= 'h'; file++) {
+	for (int r = 8; r >= 1; r--) {
+		int rank = (b.getWhoseTurn() == Core::PieceColor::White) ? r : (9 - r);
+		for (char f = 'a'; f <= 'h'; f++) {
+			char file = (b.getWhoseTurn() == Core::PieceColor::White) ? f : ('h' - (f - 'a'));
 			if ((rank + file) % 2 == 0) {
 				std::cout << "\033[48;5;22m"; // dark square
 			}
@@ -62,8 +64,13 @@ void displayColored(const Core::Board& b)
 			}
 			std::cout << toUnicode(b.get(file, rank)) << " \033[0m";
 		}
-		std::cout << std::endl;
+		std::cout << r << std::endl;
 	}
+	for (char f = 'a'; f <= 'h'; f++) {
+		char file = (b.getWhoseTurn() == Core::PieceColor::White) ? f : ('h' - (f - 'a'));
+		std::cout << file << " ";
+	}
+	std::cout << std::endl;
 }
 
 void displayCompatibility(const Core::Board& b)
@@ -100,17 +107,17 @@ void askCompatibility()
 std::unique_ptr<Core::Actor> getActor()
 {
 	do {
-		std::cout << "Your answer [p/s/h/u]: ";
+		std::cout << "Your answer [b/n/s/u]: ";
 		std::string str;
 		std::cin >> str;
 		if (str.length() == 1) {
 			switch (str[0]) {
-			case 'p':
-				return std::make_unique<Core::PureAI>();
+			case 'b':
+				return std::make_unique<Core::SubsymbolicCom>();
+			case 'n':
+				return std::make_unique<Core::NeuroSymbolicCom>();
 			case 's':
 				return std::make_unique<Core::SymbolicCom>();
-			case 'h':
-				return std::make_unique<Core::HybridCom>();
 			case 'u':
 				return std::make_unique<Player>();
 			}
@@ -122,11 +129,11 @@ std::unique_ptr<Core::Actor> getActor()
 std::pair<std::unique_ptr<Core::Actor>, std::unique_ptr<Core::Actor>> getMatchUp()
 {
 	std::cout << std::endl;
-	std::cout << "Should white be a PureAI, a SymbolicCom, a HybridCom or a user-controlled player?" << std::endl;
+	std::cout << "Should white be a SubsymbolicCom [b], a NeuroSymbolicCom [n], a SymbolicCom [s] or a user-controlled player [u]?" << std::endl;
 	std::unique_ptr<Core::Actor> whiteActor = getActor();
 
 	std::cout << std::endl;
-	std::cout << "Should black be a PureAI, a SymbolicCom or a HybridCom?" << std::endl;
+	std::cout << "Should black be a SubsymbolicCom [b], a NeuroSymbolicCom [n], a SymbolicCom [s] or a user-controlled player [u]?" << std::endl;
 	std::unique_ptr<Core::Actor> blackActor = getActor();
 
 	return std::pair<std::unique_ptr<Core::Actor>, std::unique_ptr<Core::Actor>>(std::move(whiteActor), std::move(blackActor));

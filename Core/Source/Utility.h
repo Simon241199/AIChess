@@ -23,7 +23,11 @@ namespace Core {
 	};
 	ChessGame readCsvLine(const std::string& str);
 
-	std::vector<ChessGame> getNormalGames(int N = 50000);
+	std::vector<ChessGame> getNormalGames(int N = 50000,int offset=0);
+
+	void convertCsvGamesFile();
+
+	void convertCsvPositionsFile();
 
 	void test();
 
@@ -34,4 +38,5 @@ namespace Core {
 	Move getRandomMove(const Board& b);
 
 	void logBitboard(uint64_t bitboard);
+
 };

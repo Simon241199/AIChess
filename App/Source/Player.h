@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Actor.h"
+#include "Actor.h"
 
 class Player :
     public Core::Actor
