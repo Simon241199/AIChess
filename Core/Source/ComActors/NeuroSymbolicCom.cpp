@@ -35,7 +35,7 @@ namespace Core {
 	{
 		uint64_t boardHash = b.hash();
 
-		int bestEval = std::numeric_limits<int>::lowest();
+		int bestEval = -std::numeric_limits<int>::max();
 		Move bestMove = Move(Position(0), Position(0), false);
 
 		bool overwriteTranspos = true;
@@ -65,13 +65,13 @@ namespace Core {
 		if (depth >= this->maxDepth) {
 			int currentEval = quiesce(b, lower, upper, depth);
 			if (overwriteTranspos) {
-				this->transpositionTable.insert({ boardHash, TableEntry{
+				this->transpositionTable.insert_or_assign(boardHash, TableEntry{
 					maxDepth - depth,                     // remainingDepth
 					depth,                                // currentDepth
-					currentEval,                             // eval
+					currentEval,                          // eval
 					EvalType::exact,                      // type
 					Move(Position(0), Position(0), false) // bestMove
-					} });
+					});
 			}
 			return currentEval;
 		}
@@ -79,7 +79,9 @@ namespace Core {
 		std::vector<Move> moves = b.getMoves();
 
 		if (moves.size() == 0) {
-			float eval = b.isInCheck(b.getWhoseTurn()) ? std::numeric_limits<int>::lowest() + depth : 0;
+			int eval = b.isInCheck(b.getWhoseTurn()) ? -std::numeric_limits<int>::max() + depth : 0;
+			// Consider storing this in the transposition table
+			return eval;
 		}
 
 		Move priorityMove = Move(Position(0), Position(0), false);
@@ -90,11 +92,13 @@ namespace Core {
 				std::swap(moves.front(), moves.back());
 			}
 		}
-
+		bool isExact = false;
+		int i = 0;
 		for (Move m : moves) {
-			if (m == priorityMove) {
+			if (m == priorityMove && i != 0) {
 				continue; // already searched the suggestion from the transposition table
 			}
+			i++;
 			b.make(m);
 			int currentEval = -alphaBeta(b, -upper, -lower, depth + 1);
 			b.undo();
@@ -102,40 +106,43 @@ namespace Core {
 			if (currentEval > bestEval) {
 				bestEval = currentEval;
 				bestMove = m;
-				lower = std::max(lower, currentEval);
+				if (currentEval > lower) {
+					lower = currentEval;
+					isExact = true;
+				}
 			}
 
 			if (currentEval >= upper) {
 				if (overwriteTranspos) {
-					this->transpositionTable.insert({ boardHash, TableEntry{
+					this->transpositionTable.insert_or_assign(boardHash, TableEntry{
 						maxDepth - depth, // remainingDepth
 						depth,            // currentDepth
 						bestEval,         // eval
 						EvalType::lower,  // type
 						bestMove          // bestMove
-						} });
+						});
 				}
 				return bestEval;
 			}
 		}
 		if (overwriteTranspos) {
-			if (bestEval <= lower) {
-				this->transpositionTable.insert({ boardHash, TableEntry{
-					maxDepth - depth, // remainingDepth
-					depth,            // currentDepth
-					bestEval,         // eval
-					EvalType::upper,  // type
-					bestMove          // bestMove
-					} });
-			}
-			else {
-				this->transpositionTable.insert({ boardHash, TableEntry{
+			if (isExact) {
+				this->transpositionTable.insert_or_assign(boardHash, TableEntry{
 					maxDepth - depth, // remainingDepth
 					depth,            // currentDepth
 					bestEval,         // eval
 					EvalType::exact,  // type
 					bestMove          // bestMove
-					} });
+					});
+			}
+			else {
+				this->transpositionTable.insert_or_assign(boardHash, TableEntry{
+					maxDepth - depth, // remainingDepth
+					depth,            // currentDepth
+					bestEval,         // eval
+					EvalType::upper,  // type
+					bestMove          // bestMove
+					});
 			}
 		}
 		return bestEval;
@@ -157,7 +164,7 @@ namespace Core {
 		std::vector<Move> moves = b.getMoves();
 
 		if (moves.size() == 0) {
-			return b.isInCheck(b.getWhoseTurn()) ? std::numeric_limits<int>::lowest() + depth : 0;
+			return b.isInCheck(b.getWhoseTurn()) ? -std::numeric_limits<int>::max() + depth : 0;
 		}
 
 		int bestEval = evaluateCombined(b);
