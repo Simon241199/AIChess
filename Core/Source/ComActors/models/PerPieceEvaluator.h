@@ -4,8 +4,8 @@
 #include <filesystem>
 
 struct PerPieceEvaluatorImpl : torch::nn::Module {
-	torch::Tensor square_values;
-	torch::Tensor piece_weights;
+	torch::Tensor square_values; // only separate for readability. Collapses with piece_weights because
+	torch::Tensor piece_weights; // there is no activation function between them.
 
 	PerPieceEvaluatorImpl() {
 		square_values = register_parameter("square_values", torch::ones({ 12, 8, 8 }));
@@ -13,7 +13,7 @@ struct PerPieceEvaluatorImpl : torch::nn::Module {
 	}
 
 	torch::Tensor forward(torch::Tensor x) {
-		auto weighted_squares = x * square_values;
+		auto weighted_squares = x * square_values; // instead of adding a layer one can simply add an activation function here
 		auto per_piece_sum = weighted_squares.sum({ 2, 3 });
 		auto evaluation = (per_piece_sum * piece_weights).sum(1);
 		auto white_prob = torch::sigmoid(evaluation);
@@ -32,6 +32,7 @@ PerPieceEvaluator loadPerPieceEvaluator() {
 		std::cout << "loaded" << std::endl;
 		torch::load(model, "resources/PerPieceEvaluator.pt");
 	}
+	//std::cout << (100*model->square_values * model->piece_weights.view({ 12, 1, 1 })).to(torch::kLong).rot90(1, { 1,2 }) << std::endl;
 	return model;
 }
 

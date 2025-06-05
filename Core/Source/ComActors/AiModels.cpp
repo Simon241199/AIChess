@@ -32,7 +32,7 @@ namespace Core {
 		torch::Tensor encodedBoard = unpackChannelsData(encodeBoard(b).unsqueeze(0));
 		auto output = model->forward(encodedBoard);
 
-		float rating = output[0].item<float>();
+		float rating = 100*output[0].item<float>();
 		return int(rating);
 	}
 
@@ -110,8 +110,8 @@ namespace Core {
 		}
 		model->eval();
 		torch::NoGradGuard no_grad;
-		float correct = 0;
-		size_t total = 0;
+		float totalError = 0;
+		size_t evaluationCount = 0;
 
 		auto testDataset = TensorDataset(unpackChannelsData(data.index_select(0, testPerm)), labels.index_select(0, testPerm)).map(torch::data::transforms::Stack<>());
 		auto testLoader = torch::data::make_data_loader(std::move(testDataset), 128);
@@ -119,10 +119,10 @@ namespace Core {
 			auto output = model->forward(batch.data);
 			auto target = batch.target;
 
-			correct += (output - target).pow(2).sum().item<float>();
-			total += target.size(0);
+			totalError += (output - target).pow(2).sum().item<float>();
+			evaluationCount += target.size(0);
 		}
-		std::cout << "Accuracy: " << (correct / total) << std::endl;
+		std::cout << "Accuracy: " << (totalError / evaluationCount) << std::endl;
 
 		saveToFile(model);
 	}

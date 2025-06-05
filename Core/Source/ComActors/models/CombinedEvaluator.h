@@ -5,8 +5,8 @@
 struct CombinedEvaluatorImpl : torch::nn::Module {
 
 	torch::nn::Sequential convolutionSequence{ nullptr };
-	torch::Tensor square_values;
-	torch::Tensor piece_weights;
+	torch::Tensor square_values; // only separate for readability. Collapses with piece_weights because
+	torch::Tensor piece_weights; // there is no activation function between them.
 
 	CombinedEvaluatorImpl() {
 
@@ -24,13 +24,14 @@ struct CombinedEvaluatorImpl : torch::nn::Module {
 		);
 
 		square_values = register_parameter("square_values", torch::ones({ 12, 8, 8 }));
-		piece_weights = register_parameter("piece_weights", torch::tensor(std::vector<float>{ 100, 300, 300, 500, 900, 0, -100, -300, -300, -500, -900, 0 }));
+		auto initPW = torch::tensor(std::vector<float>{ 100, 300, 300, 500, 900, 0, -100, -300, -300, -500, -900, 0 });
+		piece_weights = register_parameter("piece_weights", initPW);
 
 		register_module("convolutionSequence", convolutionSequence);
 	}
 
 	torch::Tensor forward(torch::Tensor x) {
-		auto weighted_squares = x * square_values;
+		auto weighted_squares = x * square_values; // instead of adding a layer one can simply add an activation function here
 		auto per_piece_sum = weighted_squares.sum({ 2, 3 });
 		auto perPieceEvaluation = (per_piece_sum * piece_weights).sum(1);
 		auto convolutionEvaluation = convolutionSequence->forward(x).squeeze(1);
@@ -48,6 +49,7 @@ CombinedEvaluator loadCombinedEvaluator() {
 		std::cout << "loaded" << std::endl;
 		torch::load(model, "resources/CombinedEvaluator.pt");
 	}
+	//std::cout << (model->square_values * model->piece_weights.view({ 12, 1, 1 })).to(torch::kLong).rot90(1, {1,2}) << std::endl;
 	return model;
 }
 

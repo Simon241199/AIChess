@@ -257,7 +257,7 @@ namespace Core {
 				ratings.push_back(-rating);
 			}
 			i++;
-			if ((i%10'000) == 0) {
+			if ((i % 10'000) == 0) {
 				std::cout << line << std::endl;
 				std::cout << ratings.back() << std::endl;
 				std::cout << positions.back() << std::endl;
@@ -272,6 +272,14 @@ namespace Core {
 	}
 
 	void test() {
+		auto conv = torch::nn::Conv3d(torch::nn::Conv3dOptions(1, 1, { 12,15,15 }).padding({ 0,7,7 }));
+		torch::Tensor t1 = torch::ones({ 1,12,8,8 });
+		torch::Tensor t2 = torch::ones({ 1,12,8,8 });
+		t1[0][0][0][0] = 0;
+		std::cout << t1 << std::endl;
+		std::cout << t2 << std::endl;
+		std::cout << conv(t1) << std::endl;
+		std::cout << conv(t2) << std::endl;
 		{
 			torch::Tensor trainData;
 			torch::load(trainData, std::format("resources/processedData/{}_data.pt", 1));
